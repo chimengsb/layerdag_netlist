@@ -1,0 +1,97 @@
+# Configuration for the circuit graph generation model using .bench files.
+# 基于 .bench 电路文件的图生成模型配置文件。
+
+general:
+  # 数据集名称，用于日志记录和模型保存。
+  dataset: circuit_bench
+  # 必须为 true，因为我们使用真值表 'y' 作为生成条件。
+  conditional: true
+  # 早停 (Early Stopping) 的耐心值，即在多少个 epoch 验证集性能没有提升后停止训练。
+  patience: 10
+
+node_count:
+  loader:
+    batch_size: 16
+    num_workers: 4 # 如果您的机器CPU核心数较少，可以适当调低此值。
+  model:
+    # 节点特征（门类型）的嵌入维度。
+    x_n_emb_size: 32
+    # 条件标签 'y' (真值表) 的嵌入维度。
+    # **注意**: 原始的 'y' 是一个标量，而我们的 'y' 是一个二维张量。
+    # 模型代码需要一个编码器 (例如 MLP) 将真值表转换为一个512维的向量，然后才能使用。
+    # 这里我们定义的是编码后的向量维度。
+    y_emb_size: 256
+    # 消息传递神经网络 (MPNN) 的层数。
+    num_mpnn_layers: 3
+    # 图池化方法。
+    pool: 'sum'
+  num_epochs: 500
+  optimizer:
+    lr: 0.00003
+    amsgrad: true
+
+node_pred:
+  # 节点特征扩散过程的步数。
+  T: 64
+  loader:
+    batch_size: 16
+    num_workers: 4
+  num_epochs: 700
+  graph_encoder:
+    x_n_emb_size: 256
+    y_emb_size: 256 # 同样，这是编码后真值表的向量维度。
+    num_mpnn_layers: 2
+    pool: 'sum'
+  predictor:
+    # 扩散时间步 't' 的嵌入维度。
+    t_emb_size: 256
+    # Transformer 内部的隐藏层维度。
+    out_hidden_size: 256
+    # Transformer 编码器的层数。
+    num_transformer_layers: 1
+    num_heads: 4
+    dropout: 0
+  optimizer:
+    lr: 0.00003
+    amsgrad: true
+
+edge_pred:
+  # 边预测扩散过程的步数。
+  T: 16
+  loader:
+    batch_size: 32
+    num_workers: 4
+  num_epochs: 1000
+  graph_encoder:
+    x_n_emb_size: 128
+    y_emb_size: 32 # 在边预测中，可以使用一个较小的真值表嵌入，可能因为边的连接更依赖局部结构而非全局功能。
+    num_mpnn_layers: 4
+  predictor:
+    t_emb_size: 256
+    out_hidden_size: 160
+  optimizer:
+    lr: 0.00003
+    amsgrad: true
+# ```
+
+### 关键调整和说明
+
+# 1.  **`dataset: circuit_bench`**：
+#     我将数据集的名称改为了 `circuit_bench`，这是一个清晰且有描述性的名字。
+
+# 2.  **`conditional: true`**：
+#     这个设置保持不变，但意义更为重要。因为您的 `y` 标签是真值表，它包含了电路的完整功能信息，所以模型必须在 `y` 的条件下进行生成。
+
+# 3.  **`y_emb_size` (最重要的参数)**：
+#     * 在 `tpu_tile.yaml` 中，`y` 是一个单一的浮点数，可以被一个标准的嵌入层直接处理。
+#     * 在您的数据集中，`y` 是一个二维的真值表，形状为 `[2^num_inputs, num_outputs]`。
+#     * 因此，模型在内部需要一个**真值表编码器**（例如，一个多层感知机 MLP 或者一个小型 CNN）来先将这个二维张量**压缩**成一个固定大小的向量。
+#     * 此 YAML 文件中的 `y_emb_size` 定义的就是这个**压缩后向量的维度**。我将其设置为 `512`，这是一个比较大的值，用以捕捉真值表中丰富的逻辑信息。
+
+# ### 如何使用
+
+# 1.  将上述代码块的内容保存为一个名为 `circuit_bench.yaml` 的文件。
+# 2.  在您的 `train.py` 脚本的启动命令中，通过 `--config_file` 参数指向这个新的 YAML 文件。例如：
+#     ```bash
+#     python train.py --config_file circuit_bench.yaml
+    

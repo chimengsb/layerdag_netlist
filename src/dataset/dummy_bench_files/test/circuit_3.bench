@@ -1,0 +1,9 @@
+
+# sample.bench
+INPUT(n30)
+INPUT(n31)
+C = NOT(n30)
+D = NOT(n31)
+E = n30ND(C, D)
+F = n30ND(n30, n31)
+G = n30ND(E, F)
