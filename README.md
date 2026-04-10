@@ -31,7 +31,15 @@ To train a LayerDAG model,
 
 ```bash
 python train.py --config_file configs/LayerDAG/tpu_tile.yaml
+CUDA_LAUNCH_BLOCKING=1 python train_circuit.py --config_file configs/LayerDAG/circuit_file.yaml
 ```
+CUDA_LAUNCH_BLOCKING=1
+
+CUDA_VISIBLE_DEVICES=2 python train_circuit.py --config_file configs/LayerDAG/circuit_file.yaml
+
+python traub.py --config_file configs/LayerDAG/circuit_file.yaml
+
+
 
 The trained model checkpoint will be saved to a file `model_tpu_tile_{time_stamp}.pth`.
 
@@ -42,6 +50,14 @@ For sampling and evaluation,
 ```bash
 python sample.py --model_path X
 ```
+python sample_circuit.py --model_path model_circuit_bench_Oct28-09:02:01.pth --batch_size 16
+
+python sample_circuit.py --model_path model_circuit_bench_Nov04-07:00:09.pth --batch_size 16
+
+python convert_pth_to_bench.py \
+         --pth_file circuit_bench_samples/val_generated.pth \
+         --output_dir generated_bench_files/
+
 
 where `X` is the file `model_tpu_tile_{time_stamp}.pth` saved above.
 

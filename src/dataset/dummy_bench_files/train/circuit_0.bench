@@ -1,0 +1,10 @@
+
+# sample.bench
+INPUT(n0)
+INPUT(n1)
+OUTPUT(G)
+C = NOT(n0)
+D = NOT(n1)
+E = AND(C, D)
+F = AND(n0, n1)
+G = AND(E, F)

@@ -1,0 +1,9 @@
+
+# sample.bench
+INPUT(n40)
+INPUT(n41)
+C = NOT(n40)
+D = NOT(n41)
+E = n40ND(C, D)
+F = n40ND(n40, n41)
+G = n40ND(E, F)

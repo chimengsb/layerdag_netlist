@@ -11,7 +11,7 @@ __all__ = [
 class DiscreteDiffusion(nn.Module):
     def __init__(self,
                  marginal_list,
-                 T,
+                 T,device,
                  s=0.008):
         """
         Parameters
@@ -29,6 +29,7 @@ class DiscreteDiffusion(nn.Module):
         self.num_classes_list = []
         self.I_list = nn.ParameterList([])
         self.m_list = nn.ParameterList([])
+        self.device = device
 
         for marginal_d in marginal_list:
             num_classes_d = len(marginal_d)
@@ -68,6 +69,8 @@ class DiscreteDiffusion(nn.Module):
         d : int
             Index for the attribute
         """
+        self.I_list=  self.I_list.to(self.device)
+        self.m_list=  self.m_list.to(self.device)
         return alpha * self.I_list[d] + (1 - alpha) * self.m_list[d]
 
     def apply_noise(self, z, t=None):
@@ -86,7 +89,7 @@ class DiscreteDiffusion(nn.Module):
         z_t_list = []
         for d in range(D):
             Q_bar_t_d = self.get_Q(alpha_bar_t, d)
-            z_one_hot_d = F.one_hot(z[:, d], num_classes=self.num_classes_list[d]).float()
+            z_one_hot_d = F.one_hot(z[:, d], num_classes=self.num_classes_list[d]).float().to(self.device)
             prob_z_t_d = z_one_hot_d @ Q_bar_t_d
             z_t_d = prob_z_t_d.multinomial(1).squeeze(-1)
             z_t_list.append(z_t_d)
@@ -101,7 +104,7 @@ class DiscreteDiffusion(nn.Module):
 class EdgeDiscreteDiffusion(nn.Module):
     def __init__(self,
                  avg_in_deg,
-                 T,
+                 T,device,
                  s=0.008):
         super().__init__()
 

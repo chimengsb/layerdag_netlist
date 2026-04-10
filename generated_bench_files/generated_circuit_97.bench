@@ -1,0 +1,7 @@
+# Generated circuit from .pth file (node count: 2)
+
+
+OUTPUT(n1)
+
+n0 = NOT()
+n1 = NOT(n0)

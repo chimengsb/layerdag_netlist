@@ -1,0 +1,17 @@
+# Generated circuit from .pth file (node count: 7)
+
+
+OUTPUT(n1)
+OUTPUT(n2)
+OUTPUT(n3)
+OUTPUT(n4)
+OUTPUT(n5)
+OUTPUT(n6)
+
+n0 = NOT()
+n1 = NOT(n0)
+n2 = NOT(n0)
+n3 = AND(n0)
+n4 = NOT(n0)
+n5 = NOT(n0)
+n6 = AND(n0)

@@ -1,0 +1,9 @@
+
+# sample.bench
+INPUT(n10)
+INPUT(n11)
+C = NOT(n10)
+D = NOT(n11)
+E = n10ND(C, D)
+F = n10ND(n10, n11)
+G = n10ND(E, F)

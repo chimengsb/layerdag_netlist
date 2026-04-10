@@ -1,0 +1,9 @@
+
+# sample.bench
+INPUT(n20)
+INPUT(n21)
+C = NOT(n20)
+D = NOT(n21)
+E = n20ND(C, D)
+F = n20ND(n20, n21)
+G = n20ND(E, F)
